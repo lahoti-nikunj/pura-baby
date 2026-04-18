@@ -3,25 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Secure checkout — pūra.baby organic baby skincare">
   <title>Checkout — pūra.baby</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- ✅ Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
       --cream:#FBF7F0;--sage:#6B8F71;--sage-light:#A8C5A0;--sage-dark:#3D5C42;
-      --terra:#C4724A;--terra-light:#E8A882;--forest:#1E3A2F;
-      --warm-white:#FFFDF9;--muted:#8B7355;--border:#E8DDD0;--border2:#D4C9B8;
+      --terra:#C4724A;--forest:#1E3A2F;--warm-white:#FFFDF9;--muted:#8B7355;--border:#E8DDD0;
       --ff-d:'Cormorant Garamond',serif;--ff-b:'DM Sans',sans-serif;
     }
-    body{font-family:var(--ff-b);background:var(--cream);color:var(--forest);min-height:100vh;font-size:15px;line-height:1.6}
-    /* NAV */
+    body{font-family:var(--ff-b);background:var(--cream);color:var(--forest);font-size:15px;line-height:1.6}
     nav{background:rgba(251,247,240,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 5vw;position:sticky;top:0;z-index:100}
     .nav-i{max-width:1200px;margin:0 auto;height:60px;display:flex;align-items:center;justify-content:space-between}
     .logo{font-family:var(--ff-d);font-size:1.5rem;font-weight:500;color:var(--forest);text-decoration:none}
     .logo span{color:var(--sage)}
     .secure-badge{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--sage-dark);background:rgba(107,143,113,.1);padding:.3rem .8rem;border-radius:2rem}
-    /* PROGRESS */
     .progress{background:var(--warm-white);border-bottom:1px solid var(--border);padding:1rem 5vw}
     .progress-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center}
     .step{display:flex;align-items:center;gap:.6rem;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -32,123 +32,83 @@
     .step.done .step-num{border-color:var(--sage);background:var(--sage);color:white}
     .step-line{width:60px;height:1px;background:var(--border);margin:0 .8rem}
     .step-line.done{background:var(--sage)}
-    /* LAYOUT */
-    .checkout-layout{max-width:1200px;margin:0 auto;padding:3rem 5vw 6rem;display:grid;grid-template-columns:1fr 380px;gap:3rem;align-items:start}
-    /* FORM SECTIONS */
-    .form-section{background:var(--warm-white);border:1px solid var(--border);border-radius:20px;padding:1.8rem;margin-bottom:1.2rem;animation:fadeUp .3s ease both}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-    .form-section:nth-child(2){animation-delay:.07s}
-    .form-section:nth-child(3){animation-delay:.14s}
-    .form-section:nth-child(4){animation-delay:.21s}
-    .section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4rem}
-    .section-hdr h3{font-family:var(--ff-d);font-size:1.2rem;font-weight:400;color:var(--forest);display:flex;align-items:center;gap:.6rem}
-    .section-icon{font-size:1rem}
-    .section-edit{font-size:.75rem;color:var(--sage-dark);cursor:pointer;text-decoration:underline}
-    /* FORM FIELDS */
+    .layout{max-width:1200px;margin:0 auto;padding:3rem 5vw 6rem;display:grid;grid-template-columns:1fr 380px;gap:3rem;align-items:start}
+    .form-section{background:var(--warm-white);border:1px solid var(--border);border-radius:20px;padding:1.8rem;margin-bottom:1.2rem}
+    .form-section h3{font-family:var(--ff-d);font-size:1.2rem;font-weight:400;color:var(--forest);margin-bottom:1.4rem;display:flex;align-items:center;gap:.6rem}
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
     .form-row.full{grid-template-columns:1fr}
     .form-row.three{grid-template-columns:1fr 1fr 1fr}
     .field{display:flex;flex-direction:column;gap:.4rem}
     .field label{font-size:.73rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
-    .field input,.field select,.field textarea{
-      border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;
-      font-family:var(--ff-b);font-size:.88rem;color:var(--forest);
-      background:var(--cream);outline:none;transition:border-color .18s;
-      appearance:none;-webkit-appearance:none;
-    }
-    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--sage)}
+    .field input,.field select,.field textarea{border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:var(--ff-b);font-size:.88rem;color:var(--forest);background:var(--cream);outline:none;transition:border-color .18s;appearance:none}
+    .field input:focus,.field select:focus{border-color:var(--sage)}
     .field input.error{border-color:var(--terra)}
     .field textarea{resize:vertical;min-height:70px}
     .field-hint{font-size:.7rem;color:var(--muted)}
-    .field-error{font-size:.7rem;color:var(--terra);display:none}
-    .field input.error + .field-error{display:block}
-    /* RADIO CARDS */
-    .radio-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
-    .radio-card{border:1.5px solid var(--border);border-radius:12px;padding:1rem 1.1rem;cursor:pointer;transition:all .18s;position:relative}
-    .radio-card.selected{border-color:var(--forest);background:rgba(30,58,47,.03)}
-    .radio-card:hover:not(.selected){border-color:var(--border2)}
-    .radio-card input[type=radio]{position:absolute;opacity:0;width:0;height:0}
-    .rc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem}
-    .rc-name{font-size:.88rem;font-weight:500;color:var(--forest);display:flex;align-items:center;gap:.5rem}
-    .rc-icon{font-size:1rem}
-    .rc-check{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0}
-    .radio-card.selected .rc-check{background:var(--forest);border-color:var(--forest)}
-    .rc-check::after{content:'✓';font-size:.65rem;color:white;display:none}
-    .radio-card.selected .rc-check::after{display:block}
-    .rc-desc{font-size:.75rem;color:var(--muted);line-height:1.45}
-    .rc-badge{font-size:.65rem;background:rgba(107,143,113,.12);color:var(--sage-dark);padding:.1rem .5rem;border-radius:2rem;font-weight:500}
-    /* PAYMENT METHODS */
+    /* Auth section */
+    .auth-section{background:rgba(107,143,113,.06);border:1px solid rgba(107,143,113,.2);border-radius:20px;padding:1.5rem;margin-bottom:1.2rem}
+    .auth-section h3{font-family:var(--ff-d);font-size:1.1rem;font-weight:400;color:var(--forest);margin-bottom:1rem}
+    .auth-tabs{display:flex;gap:.5rem;margin-bottom:1.2rem}
+    .auth-tab{padding:.45rem 1.1rem;border-radius:2rem;border:1.5px solid var(--border);background:transparent;font-family:var(--ff-b);font-size:.8rem;cursor:pointer;color:var(--muted);transition:all .18s}
+    .auth-tab.active{border-color:var(--forest);background:var(--forest);color:var(--cream)}
+    .auth-status{font-size:.82rem;color:var(--sage-dark);background:rgba(107,143,113,.1);border-radius:10px;padding:.7rem 1rem;display:none;align-items:center;gap:.5rem}
+    .auth-status.show{display:flex}
+    /* Payment methods */
     .pay-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:1.2rem}
     .pay-btn{border:1.5px solid var(--border);border-radius:10px;padding:.7rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.3rem;transition:all .18s;background:transparent}
     .pay-btn.selected{border-color:var(--forest);background:rgba(30,58,47,.03)}
-    .pay-btn:hover:not(.selected){border-color:var(--border2)}
     .pay-icon{font-size:1.4rem}
     .pay-label{font-size:.7rem;color:var(--muted);font-weight:500}
     .pay-btn.selected .pay-label{color:var(--forest)}
-    /* CARD FIELDS */
-    .card-fields{display:none;margin-top:1rem}
-    .card-fields.visible{display:block;animation:fadeUp .25s ease}
-    .card-number-wrap{position:relative}
-    .card-number-wrap input{padding-right:3rem}
-    .card-type-icon{position:absolute;right:.8rem;top:50%;transform:translateY(-50%);font-size:1.1rem;pointer-events:none}
-    /* UPI FIELD */
-    .upi-field{display:none;margin-top:1rem}
-    .upi-field.visible{display:block;animation:fadeUp .25s ease}
-    .upi-apps{display:flex;gap:.6rem;margin-bottom:.8rem}
-    .upi-app{border:1px solid var(--border);border-radius:8px;padding:.4rem .7rem;font-size:.72rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.3rem}
+    .upi-field{margin-top:1rem}
+    .upi-apps{display:flex;gap:.6rem;margin-bottom:.8rem;flex-wrap:wrap}
+    .upi-app{border:1px solid var(--border);border-radius:8px;padding:.4rem .7rem;font-size:.72rem;cursor:pointer;transition:all .15s}
     .upi-app:hover{border-color:var(--sage)}
-    /* ORDER ITEMS IN SUMMARY */
+    .card-fields{display:none;margin-top:1rem}
+    .card-fields.show{display:block}
+    .cod-note{display:none;margin-top:1rem;background:rgba(232,168,130,.08);border:1px solid rgba(196,114,74,.2);border-radius:10px;padding:.9rem 1.1rem;font-size:.8rem;color:var(--muted);line-height:1.6}
+    .cod-note.show{display:block}
+    /* Summary card */
     .summary-card{background:var(--warm-white);border:1px solid var(--border);border-radius:20px;padding:1.8rem;position:sticky;top:90px}
     .summary-title{font-family:var(--ff-d);font-size:1.3rem;font-weight:400;color:var(--forest);margin-bottom:1.2rem;padding-bottom:.9rem;border-bottom:1px solid var(--border)}
-    .summary-items{display:flex;flex-direction:column;gap:.8rem;margin-bottom:1.2rem;padding-bottom:1.2rem;border-bottom:1px solid var(--border)}
+    .s-items{display:flex;flex-direction:column;gap:.8rem;margin-bottom:1.2rem;padding-bottom:1.2rem;border-bottom:1px solid var(--border)}
     .s-item{display:flex;align-items:center;gap:.9rem}
-    .s-item-img{width:50px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;position:relative}
-    .s-item-img.bg1{background:rgba(168,197,160,.2)}
-    .s-item-img.bg2{background:rgba(232,168,130,.15)}
+    .s-img{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;position:relative;background:rgba(168,197,160,.2)}
     .s-qty{position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:var(--forest);color:white;border-radius:50%;font-size:.6rem;display:flex;align-items:center;justify-content:center;font-weight:500}
-    .s-item-info{flex:1}
-    .s-item-name{font-size:.82rem;font-weight:500;color:var(--forest)}
-    .s-item-var{font-size:.72rem;color:var(--muted)}
-    .s-item-price{font-size:.85rem;font-weight:500;color:var(--forest)}
-    .summary-rows{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem}
-    .summary-row{display:flex;justify-content:space-between;font-size:.83rem}
-    .summary-row .lbl{color:var(--muted)}
-    .summary-row .val{color:var(--forest);font-weight:500}
-    .summary-row.saving .val{color:var(--sage-dark)}
-    hr.sdiv{border:none;border-top:1px solid var(--border);margin:.8rem 0}
-    .summary-total{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.5rem}
-    .summary-total .lbl{font-size:1rem;font-weight:500}
-    .summary-total .val{font-family:var(--ff-d);font-size:1.8rem;font-weight:400}
-    .btn-place{width:100%;background:var(--forest);color:var(--cream);border:none;height:54px;border-radius:2rem;font-family:var(--ff-b);font-size:.95rem;letter-spacing:.04em;cursor:pointer;transition:all .22s;display:flex;align-items:center;justify-content:center;gap:.5rem;font-weight:500;margin-bottom:.8rem}
-    .btn-place:hover{background:var(--sage-dark);transform:translateY(-1px)}
-    .btn-place:disabled{opacity:.6;cursor:not-allowed;transform:none}
-    .ssl-note{display:flex;align-items:center;justify-content:center;gap:.4rem;font-size:.72rem;color:var(--muted);margin-bottom:1.2rem}
-    .summary-trust{display:flex;flex-direction:column;gap:.45rem;padding-top:1rem;border-top:1px solid var(--border)}
+    .s-name{font-size:.82rem;font-weight:500;color:var(--forest)}
+    .s-var{font-size:.72rem;color:var(--muted)}
+    .s-price{font-size:.85rem;font-weight:500;color:var(--forest);margin-left:auto}
+    .rows{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem}
+    .row{display:flex;justify-content:space-between;font-size:.83rem}
+    .row .l{color:var(--muted)}
+    .row .v{color:var(--forest);font-weight:500}
+    .row.saving .v{color:var(--sage-dark)}
+    hr{border:none;border-top:1px solid var(--border);margin:.8rem 0}
+    .total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.5rem}
+    .total-row .l{font-size:1rem;font-weight:500}
+    .total-row .v{font-family:var(--ff-d);font-size:1.8rem;font-weight:400}
+    .btn-place{width:100%;background:var(--forest);color:var(--cream);border:none;height:54px;border-radius:2rem;font-family:var(--ff-b);font-size:.95rem;cursor:pointer;transition:all .22s;display:flex;align-items:center;justify-content:center;gap:.5rem;font-weight:500;margin-bottom:.8rem}
+    .btn-place:hover:not(:disabled){background:var(--sage-dark);transform:translateY(-1px)}
+    .btn-place:disabled{opacity:.5;cursor:not-allowed}
+    .ssl-note{display:flex;align-items:center;justify-content:center;gap:.4rem;font-size:.72rem;color:var(--muted);margin-bottom:1rem}
+    .trust-lines{display:flex;flex-direction:column;gap:.4rem;padding-top:1rem;border-top:1px solid var(--border)}
     .trust-line{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:var(--muted)}
-    /* SUCCESS OVERLAY */
-    .success-overlay{position:fixed;inset:0;background:rgba(251,247,240,.97);z-index:300;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem}
-    .success-overlay.show{display:flex;animation:fadeUp .5s ease}
-    .success-icon{font-size:5rem;margin-bottom:1.5rem;animation:bounce .6s ease .3s both}
-    @keyframes bounce{0%{transform:scale(0)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
-    .success-overlay h2{font-family:var(--ff-d);font-size:2.5rem;font-weight:400;color:var(--forest);margin-bottom:.6rem}
-    .success-overlay h2 em{font-style:italic;color:var(--terra)}
-    .success-overlay p{font-size:.9rem;color:var(--muted);max-width:420px;line-height:1.7;margin-bottom:.4rem;font-weight:300}
-    .order-num{font-size:.8rem;color:var(--sage-dark);background:rgba(107,143,113,.1);padding:.4rem 1rem;border-radius:2rem;display:inline-block;margin:1rem 0 1.5rem}
-    .success-actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
-    .btn-home{background:var(--forest);color:var(--cream);padding:.8rem 2rem;border-radius:2rem;text-decoration:none;font-size:.88rem;transition:background .2s}
-    .btn-home:hover{background:var(--sage-dark)}
-    .btn-track{border:1.5px solid var(--forest);color:var(--forest);padding:.8rem 2rem;border-radius:2rem;text-decoration:none;font-size:.88rem;transition:all .2s}
-    .btn-track:hover{background:var(--forest);color:var(--cream)}
-    /* RESPONSIVE */
-    @media(max-width:800px){
-      .checkout-layout{grid-template-columns:1fr}
-      .summary-card{position:static}
-      .form-row{grid-template-columns:1fr}
-      .form-row.three{grid-template-columns:1fr 1fr}
-      .radio-grid{grid-template-columns:1fr}
-      .pay-grid{grid-template-columns:repeat(3,1fr)}
-      .step-line{width:30px}
-    }
+    /* Error/success messages */
+    .msg{border-radius:10px;padding:.8rem 1rem;font-size:.82rem;margin-bottom:1rem;display:none}
+    .msg.show{display:block}
+    .msg.error{background:rgba(196,114,74,.08);border:1px solid rgba(196,114,74,.25);color:var(--terra)}
+    .msg.success{background:rgba(107,143,113,.08);border:1px solid rgba(107,143,113,.25);color:var(--sage-dark)}
+    /* Success overlay */
+    .overlay{position:fixed;inset:0;background:rgba(251,247,240,.97);z-index:300;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem}
+    .overlay.show{display:flex}
+    .overlay-icon{font-size:5rem;margin-bottom:1.5rem}
+    .overlay h2{font-family:var(--ff-d);font-size:2.5rem;font-weight:400;color:var(--forest);margin-bottom:.6rem}
+    .overlay h2 em{font-style:italic;color:var(--terra)}
+    .overlay p{font-size:.9rem;color:var(--muted);max-width:420px;line-height:1.7;margin-bottom:.4rem;font-weight:300}
+    .order-pill{font-size:.8rem;color:var(--sage-dark);background:rgba(107,143,113,.1);padding:.4rem 1rem;border-radius:2rem;display:inline-block;margin:1rem 0 1.5rem}
+    .overlay-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+    .btn-home{background:var(--forest);color:var(--cream);padding:.8rem 2rem;border-radius:2rem;text-decoration:none;font-size:.88rem}
+    @media(max-width:800px){.layout{grid-template-columns:1fr}.summary-card{position:static}.form-row,.form-row.three{grid-template-columns:1fr}.step-line{width:30px}}
   </style>
 </head>
 <body>
@@ -160,7 +120,6 @@
   </div>
 </nav>
 
-<!-- PROGRESS -->
 <div class="progress">
   <div class="progress-inner">
     <div class="step done"><div class="step-num">1</div><span>Cart</span></div>
@@ -171,65 +130,72 @@
   </div>
 </div>
 
-<div class="checkout-layout">
-
-  <!-- LEFT: FORM -->
+<div class="layout">
   <div>
 
-    <!-- CONTACT -->
-    <div class="form-section">
-      <div class="section-hdr">
-        <h3><span class="section-icon">👤</span> Contact details</h3>
+    <!-- AUTH -->
+    <div class="auth-section">
+      <h3>👤 Sign in or continue as guest</h3>
+      <div class="auth-status show" id="auth-status">
+        <span>⏳</span> <span id="auth-status-text">Checking session…</span>
       </div>
-      <div class="form-row">
-        <div class="field">
-          <label>First name</label>
-          <input type="text" id="fname" placeholder="Nikunj">
-          <span class="field-error">Please enter your first name</span>
+      <div id="auth-forms">
+        <div class="auth-tabs">
+          <button class="auth-tab active" onclick="showAuthTab('login',this)">Sign in</button>
+          <button class="auth-tab" onclick="showAuthTab('register',this)">Create account</button>
+          <button class="auth-tab" onclick="showAuthTab('guest',this)">Guest checkout</button>
         </div>
-        <div class="field">
-          <label>Last name</label>
-          <input type="text" id="lname" placeholder="Lahoti">
-          <span class="field-error">Please enter your last name</span>
+        <div id="msg-auth" class="msg"></div>
+        <div id="login-form">
+          <div class="form-row">
+            <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="you@email.com"></div>
+            <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••"></div>
+          </div>
+          <button class="btn-place" style="height:42px;font-size:.85rem" onclick="signIn()">Sign in</button>
         </div>
-      </div>
-      <div class="form-row">
-        <div class="field">
-          <label>Mobile number</label>
-          <input type="tel" id="phone" placeholder="+91 98765 43210" maxlength="14">
-          <span class="field-error">Enter a valid 10-digit number</span>
+        <div id="register-form" style="display:none">
+          <div class="form-row">
+            <div class="field"><label>Full name</label><input type="text" id="reg-name" placeholder="Nikunj Lahoti"></div>
+            <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="you@email.com"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Password</label><input type="password" id="reg-pass" placeholder="Min 6 characters"></div>
+            <div class="field"><label>Mobile</label><input type="tel" id="reg-phone" placeholder="+91 98765 43210"></div>
+          </div>
+          <button class="btn-place" style="height:42px;font-size:.85rem" onclick="signUp()">Create account</button>
         </div>
-        <div class="field">
-          <label>Email address</label>
-          <input type="email" id="email" placeholder="you@email.com">
-          <span class="field-error">Enter a valid email address</span>
+        <div id="guest-form" style="display:none">
+          <p style="font-size:.82rem;color:var(--muted);line-height:1.65">Continuing as guest — your order will be saved but you won't be able to track it online. <a href="#" onclick="showAuthTab('register',document.querySelector('.auth-tab:nth-child(2)'));return false" style="color:var(--sage-dark)">Create a free account</a> to track orders and save your skin profile.</p>
         </div>
       </div>
     </div>
 
-    <!-- DELIVERY ADDRESS -->
-    <div class="form-section" style="animation-delay:.07s">
-      <div class="section-hdr">
-        <h3><span class="section-icon">📍</span> Delivery address</h3>
+    <!-- CONTACT -->
+    <div class="form-section">
+      <h3>📋 Contact details</h3>
+      <div class="form-row">
+        <div class="field"><label>First name</label><input type="text" id="fname" placeholder="Nikunj"></div>
+        <div class="field"><label>Last name</label><input type="text" id="lname" placeholder="Lahoti"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Mobile</label><input type="tel" id="phone" placeholder="+91 98765 43210"></div>
+        <div class="field"><label>Email</label><input type="email" id="email" placeholder="you@email.com"></div>
+      </div>
+    </div>
+
+    <!-- ADDRESS -->
+    <div class="form-section">
+      <h3>📍 Delivery address</h3>
+      <div class="form-row full">
+        <div class="field"><label>Address line 1</label><input type="text" id="addr1" placeholder="Flat / House no., Building name"></div>
       </div>
       <div class="form-row full">
-        <div class="field">
-          <label>Address line 1</label>
-          <input type="text" id="addr1" placeholder="Flat / House no., Building name">
-          <span class="field-error">Please enter your address</span>
-        </div>
-      </div>
-      <div class="form-row full">
-        <div class="field">
-          <label>Address line 2 <span style="opacity:.5;font-size:.65rem">(optional)</span></label>
-          <input type="text" id="addr2" placeholder="Street, Area, Landmark">
-        </div>
+        <div class="field"><label>Address line 2 (optional)</label><input type="text" id="addr2" placeholder="Street, Area, Landmark"></div>
       </div>
       <div class="form-row three">
         <div class="field">
           <label>City</label>
           <input type="text" id="city" placeholder="Bengaluru">
-          <span class="field-error">Required</span>
         </div>
         <div class="field">
           <label>State</label>
@@ -240,300 +206,316 @@
             <option>Gujarat</option><option>Rajasthan</option><option>West Bengal</option>
             <option>Uttar Pradesh</option><option>Punjab</option><option>Haryana</option>
           </select>
-          <span class="field-error">Required</span>
         </div>
         <div class="field">
           <label>Pincode</label>
-          <input type="text" id="pincode" placeholder="560001" maxlength="6" oninput="this.value=this.value.replace(/\D/g,'');checkPincode(this.value)">
+          <input type="text" id="pincode" placeholder="560001" maxlength="6" oninput="this.value=this.value.replace(/\D/g,'');checkPin(this.value)">
           <span class="field-hint" id="pin-hint"></span>
-          <span class="field-error">Enter valid 6-digit pincode</span>
         </div>
       </div>
       <div class="form-row full">
-        <div class="field">
-          <label>Delivery instructions <span style="opacity:.5;font-size:.65rem">(optional)</span></label>
-          <textarea id="notes" placeholder="E.g. Leave at door, call before delivery…"></textarea>
-        </div>
+        <div class="field"><label>Delivery notes (optional)</label><textarea id="notes" placeholder="E.g. Leave at door, call on arrival…"></textarea></div>
       </div>
     </div>
 
     <!-- DELIVERY METHOD -->
-    <div class="form-section" style="animation-delay:.14s">
-      <div class="section-hdr">
-        <h3><span class="section-icon">🚚</span> Delivery method</h3>
-      </div>
-      <div class="radio-grid">
-        <div class="radio-card selected" onclick="selectDelivery(this,'standard')">
-          <input type="radio" name="delivery" value="standard" checked>
-          <div class="rc-header">
-            <div class="rc-name"><span class="rc-icon">📦</span> Standard</div>
-            <div class="rc-check"></div>
-          </div>
-          <div class="rc-desc">Delivered in 3–5 business days · <strong>FREE</strong></div>
+    <div class="form-section">
+      <h3>🚚 Delivery method</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
+        <div id="std-delivery" style="border:1.5px solid var(--forest);border-radius:12px;padding:1rem;cursor:pointer;background:rgba(30,58,47,.02)" onclick="setDelivery('standard',this)">
+          <div style="font-size:.88rem;font-weight:500;margin-bottom:.25rem">📦 Standard — FREE</div>
+          <div style="font-size:.75rem;color:var(--muted)">3–5 business days</div>
         </div>
-        <div class="radio-card" onclick="selectDelivery(this,'express')">
-          <input type="radio" name="delivery" value="express">
-          <div class="rc-header">
-            <div class="rc-name"><span class="rc-icon">⚡</span> Express <span class="rc-badge">+₹79</span></div>
-            <div class="rc-check"></div>
-          </div>
-          <div class="rc-desc">Delivered tomorrow by 9 PM</div>
+        <div id="exp-delivery" style="border:1.5px solid var(--border);border-radius:12px;padding:1rem;cursor:pointer" onclick="setDelivery('express',this)">
+          <div style="font-size:.88rem;font-weight:500;margin-bottom:.25rem">⚡ Express — ₹79</div>
+          <div style="font-size:.75rem;color:var(--muted)">Tomorrow by 9 PM</div>
         </div>
       </div>
     </div>
 
     <!-- PAYMENT -->
-    <div class="form-section" style="animation-delay:.21s">
-      <div class="section-hdr">
-        <h3><span class="section-icon">💳</span> Payment method</h3>
-      </div>
+    <div class="form-section">
+      <h3>💳 Payment method</h3>
       <div class="pay-grid">
-        <button class="pay-btn selected" onclick="selectPay(this,'upi')">
-          <span class="pay-icon">📱</span>
-          <span class="pay-label">UPI</span>
-        </button>
-        <button class="pay-btn" onclick="selectPay(this,'card')">
-          <span class="pay-icon">💳</span>
-          <span class="pay-label">Card</span>
-        </button>
-        <button class="pay-btn" onclick="selectPay(this,'cod')">
-          <span class="pay-icon">💵</span>
-          <span class="pay-label">Cash on delivery</span>
-        </button>
+        <button class="pay-btn selected" onclick="setPayment(this,'upi')"><span class="pay-icon">📱</span><span class="pay-label">UPI</span></button>
+        <button class="pay-btn" onclick="setPayment(this,'card')"><span class="pay-icon">💳</span><span class="pay-label">Card</span></button>
+        <button class="pay-btn" onclick="setPayment(this,'cod')"><span class="pay-icon">💵</span><span class="pay-label">Cash on delivery</span></button>
       </div>
-
-      <!-- UPI -->
-      <div class="upi-field visible" id="upi-field">
+      <div class="upi-field" id="upi-field">
         <div class="upi-apps">
-          <div class="upi-app" onclick="fillUpi(this,'gpay')">🟢 GPay</div>
-          <div class="upi-app" onclick="fillUpi(this,'phonepe')">💜 PhonePe</div>
-          <div class="upi-app" onclick="fillUpi(this,'paytm')">🔵 Paytm</div>
-          <div class="upi-app" onclick="fillUpi(this,'bhim')">🇮🇳 BHIM</div>
+          <div class="upi-app">🟢 GPay</div>
+          <div class="upi-app">💜 PhonePe</div>
+          <div class="upi-app">🔵 Paytm</div>
+          <div class="upi-app">🇮🇳 BHIM</div>
         </div>
         <div class="field">
           <label>UPI ID</label>
           <input type="text" id="upi-id" placeholder="yourname@upi">
-          <span class="field-hint">e.g. nikunj@okhdfcbank</span>
         </div>
       </div>
-
-      <!-- CARD -->
       <div class="card-fields" id="card-fields">
         <div class="form-row full" style="margin-bottom:.8rem">
-          <div class="field">
-            <label>Card number</label>
-            <div class="card-number-wrap">
-              <input type="text" id="card-num" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)">
-              <span class="card-type-icon" id="card-icon">💳</span>
-            </div>
-          </div>
+          <div class="field"><label>Card number</label><input type="text" placeholder="1234 5678 9012 3456" maxlength="19" oninput="let v=this.value.replace(/\D/g,'').substring(0,16);this.value=v.replace(/(.{4})/g,'$1 ').trim()"></div>
         </div>
         <div class="form-row">
-          <div class="field">
-            <label>Expiry date</label>
-            <input type="text" id="card-exp" placeholder="MM / YY" maxlength="7" oninput="formatExpiry(this)">
-          </div>
-          <div class="field">
-            <label>CVV</label>
-            <input type="password" id="card-cvv" placeholder="•••" maxlength="4">
-          </div>
+          <div class="field"><label>Expiry</label><input type="text" placeholder="MM / YY" maxlength="7"></div>
+          <div class="field"><label>CVV</label><input type="password" placeholder="•••" maxlength="4"></div>
         </div>
         <div class="form-row full">
-          <div class="field">
-            <label>Cardholder name</label>
-            <input type="text" id="card-name" placeholder="Name as on card">
-          </div>
+          <div class="field"><label>Name on card</label><input type="text" placeholder="Name as on card"></div>
         </div>
       </div>
-
-      <!-- COD -->
-      <div id="cod-field" style="display:none;margin-top:1rem;background:rgba(232,168,130,.08);border:1px solid rgba(196,114,74,.2);border-radius:10px;padding:.9rem 1.1rem">
-        <p style="font-size:.8rem;color:var(--muted);line-height:1.6">💵 Pay in cash when your order is delivered. Please keep exact change ready. A ₹39 handling fee applies for COD orders.</p>
-      </div>
+      <div class="cod-note" id="cod-note">💵 Pay in cash at delivery. Please keep exact change ready. A ₹39 handling fee applies for COD orders.</div>
     </div>
 
   </div>
 
-  <!-- RIGHT: ORDER SUMMARY -->
+  <!-- SUMMARY -->
   <div>
     <div class="summary-card">
       <div class="summary-title">Order summary</div>
-
-      <div class="summary-items">
+      <div class="s-items">
         <div class="s-item">
-          <div class="s-item-img bg1">🌼<span class="s-qty">2</span></div>
-          <div class="s-item-info">
-            <div class="s-item-name">Calendula Gentle Wash</div>
-            <div class="s-item-var">200ml · Calendula & Oat</div>
-          </div>
-          <div class="s-item-price">₹ 898</div>
+          <div class="s-img">🌼<span class="s-qty">2</span></div>
+          <div style="flex:1"><div class="s-name">Calendula Gentle Wash</div><div class="s-var">200ml · Calendula & Oat</div></div>
+          <div class="s-price">₹ 898</div>
         </div>
         <div class="s-item">
-          <div class="s-item-img bg2">🌱<span class="s-qty">1</span></div>
-          <div class="s-item-info">
-            <div class="s-item-name">Moringa Daily Lotion</div>
-            <div class="s-item-var">200ml · Original</div>
-          </div>
-          <div class="s-item-price">₹ 549</div>
+          <div class="s-img">🌱<span class="s-qty">1</span></div>
+          <div style="flex:1"><div class="s-name">Moringa Daily Lotion</div><div class="s-var">200ml · Original</div></div>
+          <div class="s-price">₹ 549</div>
         </div>
       </div>
-
-      <div class="summary-rows">
-        <div class="summary-row"><span class="lbl">Subtotal</span><span class="val">₹ 1,447</span></div>
-        <div class="summary-row saving"><span class="lbl">Discount</span><span class="val">− ₹ 300</span></div>
-        <div class="summary-row saving"><span class="lbl">Coupon (PURA10)</span><span class="val" id="coupon-display">—</span></div>
-        <div class="summary-row"><span class="lbl">Delivery</span><span class="val" id="delivery-display" style="color:var(--sage-dark)">FREE</span></div>
-        <div class="summary-row"><span class="lbl">GST (18%)</span><span class="val">₹ 207</span></div>
+      <div class="rows">
+        <div class="row"><span class="l">Subtotal</span><span class="v">₹ 1,447</span></div>
+        <div class="row saving"><span class="l">Discount</span><span class="v">− ₹ 300</span></div>
+        <div class="row saving" id="delivery-row"><span class="l">Delivery</span><span class="v" style="color:var(--sage-dark)">FREE</span></div>
+        <div class="row"><span class="l">GST (18%)</span><span class="v">₹ 207</span></div>
+      </div>
+      <hr>
+      <div class="total-row">
+        <span class="l">Total</span>
+        <span class="v" id="grand-total">₹ 1,354</span>
       </div>
 
-      <hr class="sdiv">
-      <div class="summary-total">
-        <span class="lbl">Total</span>
-        <span class="val" id="grand-total">₹ 1,354</span>
-      </div>
+      <div id="msg-order" class="msg"></div>
 
-      <div class="ssl-note">🔒 256-bit SSL encryption · Secured by Razorpay</div>
-
+      <div class="ssl-note">🔒 256-bit SSL · Secured by Razorpay</div>
       <button class="btn-place" id="place-btn" onclick="placeOrder()">
         <span id="place-text">Place order · ₹ 1,354</span>
       </button>
-
-      <div class="summary-trust">
-        <div class="trust-line"><span>🌿</span> 100% organic · COSMOS certified</div>
+      <div class="trust-lines">
+        <div class="trust-line"><span>🌿</span> COSMOS certified organic</div>
         <div class="trust-line"><span>↩️</span> 30-day hassle-free returns</div>
-        <div class="trust-line"><span>📞</span> Support: hello@purababy.in</div>
+        <div class="trust-line"><span>📞</span> hello@purababy.in</div>
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- SUCCESS OVERLAY -->
-<div class="success-overlay" id="success-overlay">
-  <div class="success-icon">🌿</div>
+<div class="overlay" id="success-overlay">
+  <div class="overlay-icon">🌿</div>
   <h2>Order placed, <em>thank you!</em></h2>
-  <p>Your pūra.baby order is confirmed and will be packed with love. You'll receive a tracking link on your phone and email shortly.</p>
-  <div class="order-num">Order #PB-2025-08847</div>
+  <p>Your pūra.baby order is confirmed and will be packed with love. A confirmation has been sent to your email.</p>
+  <div class="order-pill" id="order-pill">Order #PB-2025-00001</div>
   <p style="font-size:.8rem;color:var(--muted)">Estimated delivery: <strong style="color:var(--forest)">Tuesday, 22 April</strong></p>
-  <div class="success-actions" style="margin-top:1.5rem">
+  <div class="overlay-btns" style="margin-top:1.5rem">
     <a href="index.html" class="btn-home">Back to home</a>
-    <a href="#" class="btn-track">Track order</a>
   </div>
 </div>
 
 <script>
-  // Delivery selection
-  function selectDelivery(card, type) {
-    document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
-    card.classList.add('selected');
-    const total = document.getElementById('grand-total');
-    const delivDisplay = document.getElementById('delivery-display');
-    const placeText = document.getElementById('place-text');
-    if (type === 'express') {
-      delivDisplay.textContent = '₹ 79';
-      delivDisplay.style.color = 'var(--forest)';
-      total.textContent = '₹ 1,433';
-      placeText.textContent = 'Place order · ₹ 1,433';
+  // ============================================
+  // ⚠️ REPLACE THESE WITH YOUR SUPABASE VALUES
+  // Supabase Dashboard → Settings → API
+  // ============================================
+  const SUPABASE_URL = 'https://wsswnatdisxxymanojcg.supabase.coo';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indzc3duYXRkaXN4eHltYW5vamNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjAyODEsImV4cCI6MjA5MjA5NjI4MX0.5QiO6DuWS1Q3NTF8ise9dt3ZdQpJJd8fNUF3rTJdd6k';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let currentUser = null;
+  let deliveryMethod = 'standard';
+  let paymentMethod = 'upi';
+
+  // ---- AUTH ----
+  async function init() {
+    const { data: { user } } = await db.auth.getUser();
+    if (user) {
+      currentUser = user;
+      document.getElementById('auth-status').classList.add('show');
+      document.getElementById('auth-status-text').textContent = '✓ Signed in as ' + user.email;
+      document.getElementById('auth-forms').style.display = 'none';
+      document.getElementById('email').value = user.email;
     } else {
-      delivDisplay.textContent = 'FREE';
-      delivDisplay.style.color = 'var(--sage-dark)';
-      total.textContent = '₹ 1,354';
-      placeText.textContent = 'Place order · ₹ 1,354';
+      document.getElementById('auth-status-text').textContent = 'Not signed in — continue as guest or sign in above';
     }
   }
+  init();
 
-  // Payment selection
-  let currentPay = 'upi';
-  function selectPay(btn, type) {
+  function showAuthTab(tab, el) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+    document.getElementById('guest-form').style.display = tab === 'guest' ? 'block' : 'none';
+  }
+
+  async function signIn() {
+    const email = document.getElementById('login-email').value;
+    const pass  = document.getElementById('login-pass').value;
+    const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
+    if (error) return showMsg('msg-auth', error.message, 'error');
+    currentUser = data.user;
+    document.getElementById('auth-status-text').textContent = '✓ Signed in as ' + data.user.email;
+    document.getElementById('auth-forms').style.display = 'none';
+    document.getElementById('email').value = data.user.email;
+  }
+
+  async function signUp() {
+    const name  = document.getElementById('reg-name').value;
+    const email = document.getElementById('reg-email').value;
+    const pass  = document.getElementById('reg-pass').value;
+    const phone = document.getElementById('reg-phone').value;
+    const { data, error } = await db.auth.signUp({
+      email, password: pass,
+      options: { data: { full_name: name } }
+    });
+    if (error) return showMsg('msg-auth', error.message, 'error');
+    currentUser = data.user;
+    showMsg('msg-auth', '✓ Account created! Check your email to verify.', 'success');
+    document.getElementById('email').value = email;
+    document.getElementById('fname').value = name.split(' ')[0] || '';
+    document.getElementById('lname').value = name.split(' ').slice(1).join(' ') || '';
+    document.getElementById('phone').value = phone;
+  }
+
+  // ---- UI HELPERS ----
+  function setDelivery(type, el) {
+    deliveryMethod = type;
+    document.getElementById('std-delivery').style.borderColor = type === 'standard' ? 'var(--forest)' : 'var(--border)';
+    document.getElementById('exp-delivery').style.borderColor = type === 'express'  ? 'var(--forest)' : 'var(--border)';
+    const delivRow = document.getElementById('delivery-row').querySelector('.v');
+    const total    = type === 'express' ? '₹ 1,433' : '₹ 1,354';
+    delivRow.textContent = type === 'express' ? '₹ 79' : 'FREE';
+    delivRow.style.color  = type === 'express' ? 'var(--forest)' : 'var(--sage-dark)';
+    document.getElementById('grand-total').textContent = total;
+    document.getElementById('place-text').textContent  = 'Place order · ' + total;
+  }
+
+  function setPayment(btn, type) {
+    paymentMethod = type;
     document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
-    currentPay = type;
-    document.getElementById('upi-field').className = 'upi-field' + (type === 'upi' ? ' visible' : '');
-    document.getElementById('card-fields').className = 'card-fields' + (type === 'card' ? ' visible' : '');
-    document.getElementById('cod-field').style.display = type === 'cod' ? 'block' : 'none';
+    document.getElementById('upi-field').style.display  = type === 'upi'  ? 'block' : 'none';
+    document.getElementById('card-fields').className = 'card-fields' + (type === 'card' ? ' show' : '');
+    document.getElementById('cod-note').className    = 'cod-note'    + (type === 'cod'  ? ' show' : '');
   }
 
-  // UPI app fill
-  function fillUpi(el, app) {
-    document.querySelectorAll('.upi-app').forEach(a => a.style.borderColor = '');
-    el.style.borderColor = 'var(--sage)';
-    const map = {gpay:'@okicici', phonepe:'@ybl', paytm:'@paytm', bhim:'@upi'};
-    const inp = document.getElementById('upi-id');
-    if (!inp.value) inp.value = 'yourname' + (map[app] || '@upi');
-  }
-
-  // Card formatting
-  function formatCard(inp) {
-    let v = inp.value.replace(/\D/g,'').substring(0,16);
-    inp.value = v.replace(/(.{4})/g,'$1 ').trim();
-    const icon = document.getElementById('card-icon');
-    if (v.startsWith('4')) icon.textContent = '💳';
-    else if (v.startsWith('5')) icon.textContent = '🟠';
-    else if (v.startsWith('3')) icon.textContent = '🟦';
-    else icon.textContent = '💳';
-  }
-  function formatExpiry(inp) {
-    let v = inp.value.replace(/\D/g,'');
-    if (v.length >= 2) v = v.substring(0,2) + ' / ' + v.substring(2,4);
-    inp.value = v;
-  }
-
-  // Pincode check
-  function checkPincode(val) {
+  function checkPin(v) {
     const hint = document.getElementById('pin-hint');
-    if (val.length === 6) {
-      hint.textContent = '✓ Serviceable — delivery in 3–5 days';
-      hint.style.color = 'var(--sage-dark)';
-    } else {
-      hint.textContent = '';
-    }
+    hint.textContent = v.length === 6 ? '✓ Serviceable — delivery in 3–5 days' : '';
+    hint.style.color = 'var(--sage-dark)';
   }
 
-  // Validate
+  function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'msg show ' + type;
+    setTimeout(() => el.classList.remove('show'), 5000);
+  }
+
   function validate() {
+    const required = ['fname','lname','phone','email','addr1','city','pincode'];
     let ok = true;
-    const required = [
-      {id:'fname', check: v => v.length > 1},
-      {id:'lname', check: v => v.length > 1},
-      {id:'phone', check: v => v.replace(/\D/g,'').length >= 10},
-      {id:'email', check: v => v.includes('@') && v.includes('.')},
-      {id:'addr1', check: v => v.length > 3},
-      {id:'city',  check: v => v.length > 1},
-      {id:'pincode', check: v => v.length === 6},
-    ];
-    required.forEach(r => {
-      const el = document.getElementById(r.id);
-      if (!el) return;
-      if (!r.check(el.value.trim())) {
-        el.classList.add('error');
-        ok = false;
-      } else {
-        el.classList.remove('error');
-      }
+    required.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el || !el.value.trim()) { el && el.classList.add('error'); ok = false; }
+      else el.classList.remove('error');
     });
     return ok;
   }
 
-  // Place order
-  function placeOrder() {
+  // ---- PLACE ORDER → SAVE TO SUPABASE ----
+  async function placeOrder() {
     if (!validate()) {
-      const firstErr = document.querySelector('input.error');
-      if (firstErr) firstErr.scrollIntoView({behavior:'smooth', block:'center'});
+      showMsg('msg-order', 'Please fill in all required fields.', 'error');
+      document.querySelector('input.error')?.scrollIntoView({ behavior:'smooth', block:'center' });
       return;
     }
-    const btn = document.getElementById('place-btn');
-    const txt = document.getElementById('place-text');
-    btn.disabled = true;
-    txt.textContent = '⏳ Processing…';
-    setTimeout(() => {
-      document.getElementById('success-overlay').classList.add('show');
-    }, 1800);
-  }
 
-  // Clear error on input
-  document.querySelectorAll('input, select').forEach(el => {
-    el.addEventListener('input', () => el.classList.remove('error'));
-  });
+    const btn = document.getElementById('place-btn');
+    btn.disabled = true;
+    document.getElementById('place-text').textContent = '⏳ Placing order…';
+
+    // Cart items (in a real app read from localStorage or cart page state)
+    const cartItems = [
+      { product_name:'Calendula Gentle Wash', variant:'200ml · Calendula & Oat', quantity:2, unit_price:449, line_total:898 },
+      { product_name:'Moringa Daily Lotion',  variant:'200ml · Original',         quantity:1, unit_price:549, line_total:549 },
+    ];
+    const subtotal  = cartItems.reduce((s,i) => s + i.line_total, 0);
+    const delivery  = deliveryMethod === 'express' ? 79 : 0;
+    const gst       = Math.round(subtotal * 0.18);
+    const total     = subtotal + delivery + gst;
+
+    // 1. Create order in Supabase
+    const { data: order, error: orderErr } = await db
+      .from('orders')
+      .insert({
+        user_id:          currentUser?.id || null,
+        status:           'pending',
+        subtotal,
+        discount:         300,
+        delivery_charge:  delivery,
+        gst,
+        total,
+        delivery_name:    document.getElementById('fname').value + ' ' + document.getElementById('lname').value,
+        delivery_phone:   document.getElementById('phone').value,
+        delivery_address: document.getElementById('addr1').value + ' ' + (document.getElementById('addr2').value || ''),
+        delivery_city:    document.getElementById('city').value,
+        delivery_state:   document.getElementById('state').value,
+        delivery_pincode: document.getElementById('pincode').value,
+        delivery_method:  deliveryMethod,
+        notes:            document.getElementById('notes').value,
+      })
+      .select()
+      .single();
+
+    if (orderErr) {
+      btn.disabled = false;
+      document.getElementById('place-text').textContent = 'Place order · ₹ ' + total.toLocaleString('en-IN');
+      return showMsg('msg-order', 'Could not place order: ' + orderErr.message, 'error');
+    }
+
+    // 2. Save order items
+    await db.from('order_items').insert(
+      cartItems.map(item => ({ ...item, order_id: order.id }))
+    );
+
+    // 3. Save payment record
+    await db.from('payments').insert({
+      order_id: order.id,
+      amount:   total,
+      method:   paymentMethod,
+      status:   paymentMethod === 'cod' ? 'pending' : 'initiated',
+    });
+
+    // 4. Save profile if logged in
+    if (currentUser) {
+      await db.from('profiles').upsert({
+        id:    currentUser.id,
+        phone: document.getElementById('phone').value,
+        city:  document.getElementById('city').value,
+        state: document.getElementById('state').value,
+      });
+    }
+
+    // 5. Show success
+    const orderNum = 'PB-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random()*90000)+10000);
+    document.getElementById('order-pill').textContent = 'Order #' + orderNum;
+    document.getElementById('success-overlay').classList.add('show');
+  }
 </script>
 </body>
 </html>
