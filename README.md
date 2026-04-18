@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # pūra.baby — Organic Baby Skincare
 
 A D2C organic baby skincare brand website targeting Indian parents. Built with pure HTML, CSS, and vanilla JavaScript — no frameworks or build tools required.
@@ -46,3 +47,7 @@ See the full deployment guide for setup instructions.
 ---
 
 Built for the Indian organic baby care market. © 2025 pūra baby.
+=======
+# pura-baby
+Test Git Push
+>>>>>>> fdf2ae19f527060768a5f7db808ab584d69ab234
